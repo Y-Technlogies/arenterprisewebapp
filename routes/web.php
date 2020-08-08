@@ -11,6 +11,8 @@
 |
 */
 
+Auth::routes();
+
 Route::get('/', 'PagesController@login');
 Route::get('/about', 'PagesController@about');
 Route::get('/services', 'PagesController@services');
@@ -23,11 +25,11 @@ Route::resource('client', 'ClientController');
 Route::resource('agents', 'AgentsController');
 Route::resource('invoices', 'InvoicesController');
 
-Auth::routes();
 
 Route::get('/dashboard', 'DashboardController@index')->name('dashboard');
 Route::get('/mdashboard', 'mDashboardController@index')->name('mdashboard');
 Route::get('/client', 'ClientController@index')->name('client');
 Route::get('/agents', 'AgentsController@index')->name('agents');
 Route::get('/search', 'ClientController@search');
+Route::resource('/product','ProductController');
 Route::get('/client/print-pdf', ['as' => 'client.printpdf', 'uses' => 'ClientController@printPDF']);

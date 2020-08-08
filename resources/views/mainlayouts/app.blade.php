@@ -15,8 +15,7 @@
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
-    <script src="https://use.fontawesome.com/7d6f8dee5d.js"></script> 
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
+    <link href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{{ asset('css/app.css') }}">
     <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">  -->
 
@@ -34,16 +33,35 @@
         </main> 
         <br>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> 
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js" defer ></script>
+<script src="https://use.fontawesome.com/7d6f8dee5d.js"></script>
 <script type="text/javascript"> //Show function
+    $(document).ready(function() {
 
-$(document).on('click', '.show-modal', function() {
-    $('#show').modal('show');
-    $('#i').text($(this).data('id'));
-  //$('#ti').text($(this).data('title'));
-  //$('#by').text($(this).data('body')); 
-   $('.modal-title').text('Show Post');
-});
+        $('#ClientTable').DataTable({
+            "pageLength": 5,
+            "lengthMenu": [ 5, 10, 25, 50, 100 ]
+        });
+
+        $('#AgentTable').DataTable({
+            "pageLength": 5,
+            "lengthMenu": [ 5, 10, 25, 50, 100 ]
+        });
+
+        $('#ProductTable').DataTable({
+            "pageLength": 5,
+            "lengthMenu": [ 5, 10, 25, 50, 100 ]
+        });
+    });
+
+    $(document).on('click', '.show-modal', function() {
+        $('#show').modal('show');
+        $('#i').text($(this).data('id'));
+      //$('#ti').text($(this).data('title'));
+      //$('#by').text($(this).data('body'));
+       $('.modal-title').text('Show Post');
+    });
 
 </script>
 

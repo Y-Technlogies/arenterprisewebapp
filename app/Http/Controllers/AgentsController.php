@@ -16,7 +16,7 @@ class AgentsController extends Controller
      */
     public function index()
     {
-        $agents = Agent::paginate(8);
+        $agents = Agent::all();
         return view('agents.index')->with(['agents' => $agents]);
     }
 
