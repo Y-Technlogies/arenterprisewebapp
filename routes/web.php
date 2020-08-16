@@ -18,12 +18,15 @@ Route::get('/about', 'PagesController@about');
 Route::get('/services', 'PagesController@services');
 Route::get('/client', 'PagesController@client');
 Route::get('/agents', 'PagesController@agents');
-Route::get('/invoices', 'PagesController@invoices');
+//Route::get('/invoices', 'PagesController@invoices');
 
 Route::resource('posts', 'PostsController');
 Route::resource('client', 'ClientController');
 Route::resource('agents', 'AgentsController');
-Route::resource('invoices', 'InvoicesController');
+//Route::resource('invoices', 'InvoicesController');
+Route::resource('invoice', 'InvoiceController');
+Route::post('/invoice/export', 'InvoiceController@exportPdf');
+//Route::post('/invoice/test', 'InvoiceController@exportPdf');
 
 
 Route::get('/dashboard', 'DashboardController@index')->name('dashboard');
@@ -32,4 +35,5 @@ Route::get('/client', 'ClientController@index')->name('client');
 Route::get('/agents', 'AgentsController@index')->name('agents');
 Route::get('/search', 'ClientController@search');
 Route::resource('/product','ProductController');
+Route::get('/product-list','ProductController@list')->name('product.list');
 Route::get('/client/print-pdf', ['as' => 'client.printpdf', 'uses' => 'ClientController@printPDF']);

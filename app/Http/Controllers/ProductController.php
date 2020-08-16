@@ -8,7 +8,15 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    //
+
+    /**
+     * ProductController constructor.
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
         $products = Product::all();
@@ -42,5 +50,10 @@ class ProductController extends Controller
     {
         Product::find($id)->delete();
         return redirect('/product')->with('success', 'Data Removed');
+    }
+
+    public function list()
+    {
+        return Product::all()->toJson();
     }
 }
