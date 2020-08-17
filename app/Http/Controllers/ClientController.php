@@ -257,4 +257,9 @@ class ClientController extends Controller
         return $client->download('example.pdf');
         
     }
+
+    public function list()
+    {
+        return Client::all()->toJson();
+    }
 }

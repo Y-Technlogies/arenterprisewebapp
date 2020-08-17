@@ -22,14 +22,14 @@
             <td colspan="2">
                 Date <br>
                 <b>
-                    12-Mar-2021
+                   {{ invoice.issueDate }}
                 </b>
             </td>
         </tr>
         <tr>
             <td colspan="2">
                 Delivery Note: <br>
-
+                <textarea name="note" class="form-control" cols="4" rows="3" />
             </td>
             <td colspan="2">Mode/Term of payment: <br>
                 <b>
@@ -39,29 +39,49 @@
         </tr>
         <tr>
             <td colspan="2">
-                Aggent: <br>
-                <b>Md. Main Uddin</b>
+                Agent: <br>
+                <select v-if="agents.length" class="form-control" name="agent" v-model="invoice.agentId">
+                    <option v-for="option in agents" v-bind:value="option.agents_id">{{ option.agents_fname }} {{ option.agents_lname }}</option>
+                </select>
             </td>
-            <td colspan="2">Client <br></td>
+            <td colspan="2">Client <br>
+                <select v-if="clients.length" class="form-control" name="client" v-model="invoice.clientId" @change="selectClient">
+                    <option v-for="option in clients" v-bind:value="option.client_id">{{ option.companyname }}</option>
+                </select>
+            </td>
         </tr>
         <tr>
             <td colspan="2">Buyer's order No: <br></td>
             <td colspan="2">Date <br></td>
         </tr>
         <tr>
-            <td colspan="3" rowspan="3">Buyer: <br></td>
+            <td colspan="3" rowspan="3">
+                Buyer: <br>
+                {{ client.companyname }} <br>
+                {{ client.propname }} <br>
+                {{ client.address }} <br>
+                {{ client.propphone1 }}, {{ client.propphone2 }}<br>
+                {{ client.transport }}
+            </td>
             <td colspan="2">Dispatch Document No: <br></td>
             <td colspan="2">Date</td>
         </tr>
         <tr>
             <td colspan="2">Address <br></td>
-            <td colspan="2">Destination <br></td>
+            <td colspan="2">Destination <br>
+                {{ client.destination }}
+            </td>
         </tr>
         <tr>
-            <td colspan="4" rowspan="2">Terms of Delivery: <br></td>
+            <td colspan="4" rowspan="2">Terms of Delivery: <br>
+                <textarea name="note" class="form-control" cols="4" rows="3" />
+            </td>
         </tr>
         <tr>
-            <td colspan="3">28<br></td>
+            <td colspan="3">
+                Discount given in %
+                <input type="input" class="form-control" placeholder="ex: 50%" v-model="discount" name="totalQuantity"  @input="updateTotalInvoice">
+            </td>
         </tr>
         <tr>
             <td colspan="3" class="text-center">Description of Gods</td>
@@ -77,15 +97,18 @@
                 </div>
             </td>
             <td colspan="3" class="text-center">
-                <span class="font-italic" style="color: gray;" v-if="!row.editable" @click="row.editable = true">
-                    {{ row.name }}
-                </span>
-                <select name="product_name" v-else @blur="row.editable = false">
-                    <option v-for="option in options" value="{{ option.id }}">{{ option.name }}</option>
+                <select v-if="options.length" class="form-control" name="product_name" v-model="rows[index].id" @change="updateRow(index)">
+                    <option v-for="option in options" v-bind:value="option.id">{{ option.name }}</option>
                 </select>
-
             </td>
-            <td>{{ row.quantity }}</td>
+            <td>
+                <input type="input"
+                       class="form-control"
+                       placeholder="Quantity"
+                       name="quantity"
+                       @input="updateAmount(index)"
+                       v-model="rows[index].quantity" :disabled="rows[index].id === 0">
+            </td>
             <td>{{ row.rate }}</td>
             <td colspan="2">{{ row.amount }}</td>
         </tr>
@@ -105,22 +128,33 @@
         name: "InvoiceTable",
         data() {
             return {
-                product: {id: 0, name: '--Select Product--', quantity: 0, rate: 0, amount: 0, editable: false},
+                product: {id: 0, name: '', quantity: 0, rate: 0, amount: 0},
                 rows: [],
                 options: [],
+                clients: [],
+                agents: [],
                 productName: '',
                 totalAmount: '',
                 totalQuantity: '',
-                discount: ''
+                discount: '',
+                invoice: { clientId: 0, issueDate: '' , agentId: 0},
+                client: {},
             }
         },
         created() {
+            this.initInvoice();
             this.rows.push(this.product);
             this.productOption();
+            this.clientList();
+            this.agentList();
         },
         methods: {
+
+            initInvoice() {
+                this.invoice.issueDate = new Date().toLocaleDateString();
+            },
             addRow: function () {
-                this.rows.push(this.product);
+                this.rows.push({id: 0, name: '', quantity: 0, rate: 0, amount: 0});
             },
 
             removeRow: function (index) {
@@ -135,6 +169,25 @@
                     });
             },
 
+            clientList() {
+                axios.get('/client-list')
+                    .then((response) => {
+                        this.clients = JSON.parse(JSON.stringify(response.data));
+                    });
+            },
+
+            agentList() {
+                    axios.get('/agent-list')
+                        .then((response) => {
+                            this.agents = JSON.parse(JSON.stringify(response.data));
+                        });
+                },
+
+            selectClient(){
+                this.client = this.clients.find(client => {
+                    return (client.client_id === this.invoice.clientId);
+                });
+            },
             updateRow(index) {
 
                 let product = this.options.find((data) => {
@@ -154,6 +207,7 @@
             },
 
             updateTotalInvoice() {
+
                 this.totalQuantity = this.rows.reduce(function (sum, row) {
                     return sum + parseInt(row.quantity);
                 }, 0);
@@ -161,18 +215,11 @@
                 this.totalAmount = this.rows.reduce(function (sum, row) {
                     return sum + row.amount;
                 }, 0);
-            },
 
-            calculateDiscount() {
-
-                this.updateTotalInvoice();
-
-                if (this.discount === '') {
-                    return;
+                if (this.discount !== '') {
+                    this.totalAmount = this.totalAmount - this.totalAmount * (parseInt(this.discount) / 100);
                 }
-
-                this.totalAmount = this.totalAmount - this.totalAmount * (parseInt(this.discount) / 100);
-            }
+            },
         }
     }
 </script>

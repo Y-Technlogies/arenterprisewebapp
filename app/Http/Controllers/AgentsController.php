@@ -190,4 +190,9 @@ class AgentsController extends Controller
     {
         //
     }
+
+    public function list()
+    {
+        return Agent::all()->toJson();
+    }
 }

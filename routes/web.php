@@ -22,7 +22,9 @@ Route::get('/agents', 'PagesController@agents');
 
 Route::resource('posts', 'PostsController');
 Route::resource('client', 'ClientController');
+Route::get('/client-list', 'ClientController@list');
 Route::resource('agents', 'AgentsController');
+Route::get('/agent-list', 'AgentsController@list');
 //Route::resource('invoices', 'InvoicesController');
 Route::resource('invoice', 'InvoiceController');
 Route::post('/invoice/export', 'InvoiceController@exportPdf');
