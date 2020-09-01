@@ -9,6 +9,16 @@ use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
+
+
+    /**
+     * InvoiceController constructor.
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function create()
     {
         $agents = Agent::all();
