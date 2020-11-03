@@ -16,4 +16,10 @@ class Agent extends Model
     'agentaddress']);
 
     public $primaryKey = 'agents_id';
+
+
+    public function full_name()
+    {
+        return ucfirst($this->agents_fname. ' '.$this->agents_lname);
+    }
 }

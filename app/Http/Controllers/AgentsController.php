@@ -10,13 +10,20 @@ use DB;
 class AgentsController extends Controller
 {
     /**
+     * ProductController constructor.
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        $agents = Agent::paginate(8);
+        $agents = Agent::all();
         return view('agents.index')->with(['agents' => $agents]);
     }
 
@@ -182,5 +189,10 @@ class AgentsController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function list()
+    {
+        return Agent::all()->toJson();
     }
 }

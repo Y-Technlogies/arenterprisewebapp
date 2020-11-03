@@ -11,13 +11,20 @@ use DB;
 class ClientController extends Controller
 {
     /**
+     * ProductController constructor.
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        $clients = Client::paginate(8);
+        $clients = Client::all();
         return view('client.index')->with(['clients' => $clients]);
     }
 
@@ -249,5 +256,10 @@ class ClientController extends Controller
         $client = Client::loadview('client', $client);
         return $client->download('example.pdf');
         
+    }
+
+    public function list()
+    {
+        return Client::all()->toJson();
     }
 }

@@ -21,8 +21,8 @@
                     <div class="btn-group dropup">
                     <a href="/client" class="btn btn-primary ml-4 float-center">Manage Clients</a>
                     <a href="/agents" class="btn btn-primary ml-2 float-center">Manage Agents</a>
-                    <a href="/posts/create" class="btn btn-primary ml-2 float-center">Products</a>
-                    <a href="/invoices/create" class="btn btn-primary ml-2 float-center">Manage Invoice</a>
+                    <a href="{{ route('product.index') }}" class="btn btn-primary ml-2 float-center">Products</a>
+                    <a href="{{ route('invoice.create') }}" class="btn btn-primary ml-2 float-center">Manage Invoice</a>
                     <a href="/posts/create" class="btn btn-primary ml-2 float-center">Manage Bills</a>
                     </div>
                </div>
