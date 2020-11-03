@@ -1,45 +1,7 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html lang="en">
-<head>
-    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-    <title>Invoice</title>
+@extends('mainlayouts.app')
 
-    <style>
-        table {
-            width: 100%;
-            margin-bottom: 1rem;
-            color: #212529;
-        }
-
-        .table th,
-        .table td {
-            padding: 0.75rem;
-            vertical-align: top;
-            border-top: 1px solid #dee2e6;
-        }
-
-        .table thead th {
-            vertical-align: bottom;
-            border-bottom: 2px solid #dee2e6;
-        }
-
-        .table tbody + tbody {
-            border-top: 2px solid #dee2e6;
-        }
-
-        .table-sm th,
-        .table-sm td {
-            padding: 0.3rem;
-        }
-
-        .table-bordered, td {
-            border: 1px solid #212022;
-        }
-    </style>
-</head>
-
-<body>
-    <table class="table-sm table-bordered">
+@section('content')
+    <table class="table">
         <tbody>
         <tr>
             <td rowspan="9" style="border: 0;"></td>
@@ -78,17 +40,17 @@
             </td>
         </tr>
         <tr>
-            <td colspan="2" style="padding-bottom: 5px;">
+            <td colspan="2">
                 Agent: <br>
                 {{ $invoice->agents->full_name() }}
             </td>
-            <td colspan="2">Client: <br>
+            <td colspan="2">Client <br>
                 {{ $invoice->clients->prop_name }}
             </td>
         </tr>
         <tr>
-            <td colspan="2" style="padding-bottom: 10px;">Buyer's order No: <br></td>
-            <td colspan="2">Date</td>
+            <td colspan="2">Buyer's order No: <br></td>
+            <td colspan="2">Date <br></td>
         </tr>
         <tr>
             <td colspan="3" rowspan="3">
@@ -100,7 +62,7 @@
                 {{ $invoice->clients->transport }}
             </td>
             <td colspan="2">Dispatch Document No: <br></td>
-            <td colspan="2">Date <br></td>
+            <td colspan="2">Date</td>
         </tr>
         <tr>
             <td colspan="2">Address <br></td>
@@ -115,7 +77,8 @@
         </tr>
         <tr>
             <td colspan="3">
-                Discount given in % {{ $invoice->discount }}
+                Discount given in %
+                {{ $invoice->discount }}
             </td>
         </tr>
         <tr>
@@ -146,11 +109,12 @@
             <td></td>
             <td colspan="2">{{ $invoice->amount }}</td>
         </tr>
+        <tr>
+            <td style="border: 0;" colspan="7"></td>
+            <td style="border: 0;" class="text-right">
+                <a href="{{ url('/invoice/export', $invoice->id) }}" class="btn btn-danger">Print</a>
+            </td>
+        </tr>
         </tbody>
     </table>
-
-<div class="footer">
-    Copyright © 2014. A R Enterprice
-</div>
-</body>
-</html>
+@endsection

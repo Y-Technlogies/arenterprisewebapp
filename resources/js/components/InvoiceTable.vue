@@ -17,7 +17,7 @@
                     <td colspan="2">
                         Invoice No <br>
                         <b>
-                            2010
+                            {{ invoice.invoice_no }}
                         </b>
                     </td>
                     <td colspan="2">
@@ -30,7 +30,7 @@
                 <tr>
                     <td colspan="2">
                         Delivery Note: <br>
-                        <textarea name="note" v-model="invoice.dedlivery_note" class="form-control" cols="4" rows="3" />
+                        <textarea name="note" v-model="invoice.delivery_note" class="form-control" cols="4" rows="3" />
                     </td>
                     <td colspan="2">Mode/Term of payment: <br>
                         <b>
@@ -75,7 +75,7 @@
                 </tr>
                 <tr>
                     <td colspan="4" rowspan="2">Terms of Delivery: <br>
-                        <textarea name="note" class="form-control" cols="4" rows="3" />
+                        <textarea name="note" class="form-control" cols="4" rows="3" v-model="invoice.delivery_note" />
                     </td>
                 </tr>
                 <tr>
@@ -123,7 +123,7 @@
                 <tr>
                     <td style="border: 0;" colspan="7"></td>
                     <td style="border: 0;" class="text-right">
-                        <button class="btn btn-info">Save</button>
+                        <button class="btn btn-info" :disabled="isDisabled">Save</button>
                     </td>
                 </tr>
             </tbody>
@@ -134,6 +134,7 @@
 <script>
     export default {
         name: "InvoiceTable",
+        props: ['route'],
         data() {
             return {
                 product: {id: 0, name: '', quantity: 0, rate: 0, amount: 0},
@@ -145,8 +146,12 @@
                 totalAmount: '',
                 totalQuantity: '',
                 discount: '',
-                invoice: { clientId: 0, issueDate: '' , agentId: 0},
+                invoice: { clientId: 0, issueDate: '' , agentId: 0, delivery_note: '', totalAmount: 0, totalQuantity: 0, discount: 0},
                 client: {},
+                field: {
+                    product: [],
+                    invoice: {}
+                },
             }
         },
         created() {
@@ -156,10 +161,16 @@
             this.clientList();
             this.agentList();
         },
+        computed: {
+            isDisabled() {
+                return (this.rows[0].id === 0) || (this.invoice.agentId === 0) || (this.invoice.clientId === 0);
+            }
+        },
         methods: {
 
             initInvoice() {
                 this.invoice.issueDate = new Date().toLocaleDateString();
+                this.invoice.invoice_no =  Math.floor(1000 + Math.random() * 999);
             },
             addRow: function () {
                 this.rows.push({id: 0, name: '', quantity: 0, rate: 0, amount: 0});
@@ -227,10 +238,25 @@
                 if (this.discount !== '') {
                     this.totalAmount = this.totalAmount - this.totalAmount * (parseInt(this.discount) / 100);
                 }
-            },
 
+                this.invoice.totalAmount = this.totalAmount;
+                this.invoice.totalQuantity = this.totalQuantity;
+                this.invoice.discount = this.discount;
+            },
             submit() {
-                alert(0);
+                this.field.invoice = {...this.invoice};
+
+                for (let index in this.rows) {
+                    this.field.product.push(this.rows[index]);
+                }
+
+                axios.post(this.route, this.field).then(response => {
+                   window.location.href = response.data.url;
+                }).catch(error => {
+                    if (error.response.status === 422) {
+                        this.errors = error.response.data.errors || {};
+                    }
+                });
             }
         }
     }

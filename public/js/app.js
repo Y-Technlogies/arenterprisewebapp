@@ -1838,6 +1838,12 @@ module.exports = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 //
 //
 //
@@ -1973,6 +1979,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "InvoiceTable",
+  props: ['route'],
   data: function data() {
     return {
       product: {
@@ -1993,9 +2000,17 @@ __webpack_require__.r(__webpack_exports__);
       invoice: {
         clientId: 0,
         issueDate: '',
-        agentId: 0
+        agentId: 0,
+        delivery_note: '',
+        totalAmount: 0,
+        totalQuantity: 0,
+        discount: 0
       },
-      client: {}
+      client: {},
+      field: {
+        product: [],
+        invoice: {}
+      }
     };
   },
   created: function created() {
@@ -2005,9 +2020,15 @@ __webpack_require__.r(__webpack_exports__);
     this.clientList();
     this.agentList();
   },
+  computed: {
+    isDisabled: function isDisabled() {
+      return this.rows[0].id === 0 || this.invoice.agentId === 0 || this.invoice.clientId === 0;
+    }
+  },
   methods: {
     initInvoice: function initInvoice() {
       this.invoice.issueDate = new Date().toLocaleDateString();
+      this.invoice.invoice_no = Math.floor(1000 + Math.random() * 999);
     },
     addRow: function addRow() {
       this.rows.push({
@@ -2077,9 +2098,27 @@ __webpack_require__.r(__webpack_exports__);
       if (this.discount !== '') {
         this.totalAmount = this.totalAmount - this.totalAmount * (parseInt(this.discount) / 100);
       }
+
+      this.invoice.totalAmount = this.totalAmount;
+      this.invoice.totalQuantity = this.totalQuantity;
+      this.invoice.discount = this.discount;
     },
     submit: function submit() {
-      alert(0);
+      var _this6 = this;
+
+      this.field.invoice = _objectSpread({}, this.invoice);
+
+      for (var index in this.rows) {
+        this.field.product.push(this.rows[index]);
+      }
+
+      axios.post(this.route, this.field).then(function (response) {
+        window.location.href = response.data.url;
+      })["catch"](function (error) {
+        if (error.response.status === 422) {
+          _this6.errors = error.response.data.errors || {};
+        }
+      });
     }
   }
 });
@@ -38371,7 +38410,18 @@ var render = function() {
               _vm._v(" "),
               _vm._m(0),
               _vm._v(" "),
-              _vm._m(1),
+              _c("td", { attrs: { colspan: "2" } }, [
+                _vm._v("\n                    Invoice No "),
+                _c("br"),
+                _vm._v(" "),
+                _c("b", [
+                  _vm._v(
+                    "\n                        " +
+                      _vm._s(_vm.invoice.invoice_no) +
+                      "\n                    "
+                  )
+                ])
+              ]),
               _vm._v(" "),
               _c("td", { attrs: { colspan: "2" } }, [
                 _vm._v("\n                    Date "),
@@ -38397,13 +38447,13 @@ var render = function() {
                     {
                       name: "model",
                       rawName: "v-model",
-                      value: _vm.invoice.dedlivery_note,
-                      expression: "invoice.dedlivery_note"
+                      value: _vm.invoice.delivery_note,
+                      expression: "invoice.delivery_note"
                     }
                   ],
                   staticClass: "form-control",
                   attrs: { name: "note", cols: "4", rows: "3" },
-                  domProps: { value: _vm.invoice.dedlivery_note },
+                  domProps: { value: _vm.invoice.delivery_note },
                   on: {
                     input: function($event) {
                       if ($event.target.composing) {
@@ -38411,7 +38461,7 @@ var render = function() {
                       }
                       _vm.$set(
                         _vm.invoice,
-                        "dedlivery_note",
+                        "delivery_note",
                         $event.target.value
                       )
                     }
@@ -38419,7 +38469,7 @@ var render = function() {
                 })
               ]),
               _vm._v(" "),
-              _vm._m(2)
+              _vm._m(1)
             ]),
             _vm._v(" "),
             _c("tr", [
@@ -38533,7 +38583,7 @@ var render = function() {
               ])
             ]),
             _vm._v(" "),
-            _vm._m(3),
+            _vm._m(2),
             _vm._v(" "),
             _c("tr", [
               _c("td", { attrs: { colspan: "3", rowspan: "3" } }, [
@@ -38567,13 +38617,13 @@ var render = function() {
                 )
               ]),
               _vm._v(" "),
-              _vm._m(4),
+              _vm._m(3),
               _vm._v(" "),
               _c("td", { attrs: { colspan: "2" } }, [_vm._v("Date")])
             ]),
             _vm._v(" "),
             _c("tr", [
-              _vm._m(5),
+              _vm._m(4),
               _vm._v(" "),
               _c("td", { attrs: { colspan: "2" } }, [
                 _vm._v("Destination "),
@@ -38586,7 +38636,38 @@ var render = function() {
               ])
             ]),
             _vm._v(" "),
-            _vm._m(6),
+            _c("tr", [
+              _c("td", { attrs: { colspan: "4", rowspan: "2" } }, [
+                _vm._v("Terms of Delivery: "),
+                _c("br"),
+                _vm._v(" "),
+                _c("textarea", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.invoice.delivery_note,
+                      expression: "invoice.delivery_note"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  attrs: { name: "note", cols: "4", rows: "3" },
+                  domProps: { value: _vm.invoice.delivery_note },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(
+                        _vm.invoice,
+                        "delivery_note",
+                        $event.target.value
+                      )
+                    }
+                  }
+                })
+              ])
+            ]),
             _vm._v(" "),
             _c("tr", [
               _c("td", { attrs: { colspan: "3" } }, [
@@ -38624,7 +38705,7 @@ var render = function() {
               ])
             ]),
             _vm._v(" "),
-            _vm._m(7),
+            _vm._m(5),
             _vm._v(" "),
             _vm._l(_vm.rows, function(row, index) {
               return _c("tr", [
@@ -38785,7 +38866,27 @@ var render = function() {
               ])
             ]),
             _vm._v(" "),
-            _vm._m(8)
+            _c("tr", [
+              _c("td", {
+                staticStyle: { border: "0" },
+                attrs: { colspan: "7" }
+              }),
+              _vm._v(" "),
+              _c(
+                "td",
+                { staticClass: "text-right", staticStyle: { border: "0" } },
+                [
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-info",
+                      attrs: { disabled: _vm.isDisabled }
+                    },
+                    [_vm._v("Save")]
+                  )
+                ]
+              )
+            ])
           ],
           2
         )
@@ -38814,17 +38915,6 @@ var staticRenderFns = [
       _vm._v(
         "\n                    Email: arenterprisebd2012@gmail.com, powerlube12@gmail.com\n\n                "
       )
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("td", { attrs: { colspan: "2" } }, [
-      _vm._v("\n                    Invoice No "),
-      _c("br"),
-      _vm._v(" "),
-      _c("b", [_vm._v("\n                        2010\n                    ")])
     ])
   },
   function() {
@@ -38873,22 +38963,6 @@ var staticRenderFns = [
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("tr", [
-      _c("td", { attrs: { colspan: "4", rowspan: "2" } }, [
-        _vm._v("Terms of Delivery: "),
-        _c("br"),
-        _vm._v(" "),
-        _c("textarea", {
-          staticClass: "form-control",
-          attrs: { name: "note", cols: "4", rows: "3" }
-        })
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("tr", [
       _c("td", { staticClass: "text-center", attrs: { colspan: "3" } }, [
         _vm._v("Description of Gods")
       ]),
@@ -38898,18 +38972,6 @@ var staticRenderFns = [
       _c("td", [_vm._v("Rate/Cat")]),
       _vm._v(" "),
       _c("td", { attrs: { colspan: "2" } }, [_vm._v("Amount")])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("tr", [
-      _c("td", { staticStyle: { border: "0" }, attrs: { colspan: "7" } }),
-      _vm._v(" "),
-      _c("td", { staticClass: "text-right", staticStyle: { border: "0" } }, [
-        _c("button", { staticClass: "btn btn-info" }, [_vm._v("Save")])
-      ])
     ])
   }
 ]

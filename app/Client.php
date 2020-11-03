@@ -17,5 +17,4 @@ class Client extends Model
     'district']);
 
     public $primaryKey = 'client_id';
-    
 }

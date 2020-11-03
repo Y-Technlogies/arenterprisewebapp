@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Agent;
+use App\Invoice;
 use App\Product;
 use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Http\Request;
@@ -25,15 +26,40 @@ class InvoiceController extends Controller
         $products = Product::pluck('name', 'id');
         return view('invoice.create')->with(compact('agents', 'products'));
     }
-    public function exportPdf(Request $request)
+
+    public function store(Request $request)
     {
-        dd($request->input());
-//        $pdf = PDF::loadView('invoice.pdf', $request->input());
-//        return $pdf->stream('invoice.pdf');
+        $tmpInvocie = $request->get('invoice');
+        $invoice = new Invoice();
+        $invoice->client_id = $tmpInvocie["clientId"];
+        $invoice->agent_id = $tmpInvocie["agentId"];
+        $invoice->delivery_note = $tmpInvocie["delivery_note"];
+        $invoice->amount = $tmpInvocie["totalAmount"];
+        $invoice->quantity = $tmpInvocie["totalQuantity"];
+        $invoice->invoice_no = $tmpInvocie["invoice_no"];
+        $invoice->discount = $tmpInvocie["discount"];
+        $invoice->save();
+
+        $tmpProduct = $request->get('product');
+
+        foreach ($tmpProduct as $product) {
+            $invoice->products()->attach($product['id'], ['quantity' => $product['quantity']]);
+        }
+
+        return response()->json(['url' => route('invoice.show', $invoice->id)]);
+
     }
 
-    public function show()
+    public function exportPdf($id)
     {
-        return view('invoice.pdf');
+        $invoice = Invoice::find($id);
+        $pdf = PDF::loadView('invoice.pdf', compact('invoice'));
+        return $pdf->stream('invoice.pdf');
+    }
+
+    public function show($id)
+    {
+        $invoice = Invoice::find($id);
+        return view('invoice.view')->with(compact('invoice'));
     }
 }

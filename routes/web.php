@@ -27,7 +27,7 @@ Route::resource('agents', 'AgentsController');
 Route::get('/agent-list', 'AgentsController@list');
 //Route::resource('invoices', 'InvoicesController');
 Route::resource('invoice', 'InvoiceController');
-Route::post('/invoice/export', 'InvoiceController@exportPdf');
+Route::get('/invoice/export/{id}', 'InvoiceController@exportPdf');
 //Route::post('/invoice/test', 'InvoiceController@exportPdf');
 
 
